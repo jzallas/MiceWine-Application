@@ -27,6 +27,7 @@ import com.getkeepsafe.taptargetview.TapTargetSequence
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.micewine.emu.BuildConfig
+import com.micewine.emu.MiceWineApplication
 import com.micewine.emu.R
 import com.micewine.emu.activities.GeneralSettingsActivity.Companion.BOX64_AVX
 import com.micewine.emu.activities.GeneralSettingsActivity.Companion.BOX64_DYNAREC_ALIGNED_ATOMICS
@@ -945,8 +946,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     companion object {
-        @SuppressLint("SdCardPath")
-        val appRootDir = File("/data/data/com.micewine.emu/files")
+        val appRootDir = MiceWineApplication.instance.filesDir
         var ratPackagesDir = File("$appRootDir/packages")
         var appBuiltinRootfs: Boolean = false
         private val unixUsername = runCommandWithOutput("whoami").replace("\n", "")

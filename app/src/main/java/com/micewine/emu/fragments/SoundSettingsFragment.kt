@@ -11,6 +11,7 @@ import com.micewine.emu.R
 import com.micewine.emu.activities.GeneralSettingsActivity.Companion.PA_SINK
 import com.micewine.emu.activities.GeneralSettingsActivity.Companion.PA_SINK_DEFAULT_VALUE
 import com.micewine.emu.activities.GeneralSettingsActivity.Companion.SPINNER
+import com.micewine.emu.activities.MainActivity.Companion.appRootDir
 import com.micewine.emu.activities.MainActivity.Companion.paSink
 import com.micewine.emu.activities.MainActivity.Companion.usrDir
 import com.micewine.emu.adapters.AdapterSettingsPreferences
@@ -56,7 +57,7 @@ class SoundSettingsFragment : Fragment() {
             val paFile = File("$usrDir/etc/pulse/default.pa")
 
             paFile.writeText("" +
-                    "#!/data/data/com.micewine.emu/files/usr/bin/pulseaudio -nF\n" +
+                    "#!$appRootDir/usr/bin/pulseaudio -nF\n" +
                     ".fail\n" +
                     "\n" +
                     "load-module module-device-restore\n" +
@@ -78,7 +79,7 @@ class SoundSettingsFragment : Fragment() {
                     "load-module module-filter-apply\n" +
                     "\n" +
                     ".nofail\n" +
-                    ".include /data/data/com.micewine.emu/files/usr/etc/pulse/default.pa.d\n" +
+                    ".include $appRootDir/usr/etc/pulse/default.pa.d\n" +
                     "\n" +
                     "load-module module-$paSink-sink\n"
             )
