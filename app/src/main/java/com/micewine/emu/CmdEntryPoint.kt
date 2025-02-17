@@ -109,7 +109,7 @@ class CmdEntryPoint internal constructor(args: Array<String>?, context: Context)
     private external fun listenForConnections()
 
     init {
-        if (!start(args)) exitProcess(1)
+        if (!start(args, context.filesDir.toString())) exitProcess(1)
 
         spawnListeningThread(context)
         sendBroadcastDelayed(context)
@@ -239,7 +239,7 @@ class CmdEntryPoint internal constructor(args: Array<String>?, context: Context)
         }
 
         @JvmStatic
-        external fun start(args: Array<String>?): Boolean
+        external fun start(args: Array<String>?, dir: String): Boolean
 
         @JvmStatic
         private external fun connected(): Boolean

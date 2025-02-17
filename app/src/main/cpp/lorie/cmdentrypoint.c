@@ -43,8 +43,20 @@ static void* startServer(__unused void* cookie) {
     exit(dix_main(argc, (char**) argv, envp));
 }
 
+static const char* concat_char(const char* str1, const char* str2) {
+    size_t len1 = strlen(str1);
+    size_t len2 = strlen(str2);
+    char* result = (char*)malloc(len1 + len2 + 1);
+    if (result == NULL) {
+        return NULL;
+    }
+    strcpy(result, str1);
+    strcat(result, str2);
+    return (const char*)result;
+}
+
 JNIEXPORT jboolean JNICALL
-Java_com_micewine_emu_CmdEntryPoint_start(JNIEnv *env, __unused jclass cls, jobjectArray args) {
+Java_com_micewine_emu_CmdEntryPoint_start(JNIEnv *env, __unused jclass cls, jobjectArray args, jstring dir) {
     pthread_t t;
     JavaVM* vm = NULL;
     // execv's argv array is a bit incompatible with Java's String[], so we do some converting here...
@@ -79,7 +91,11 @@ Java_com_micewine_emu_CmdEntryPoint_start(JNIEnv *env, __unused jclass cls, jobj
         execlp("logcat", "logcat", "--pid", pid, NULL);
     }
 
-    setenv("TMPDIR", "/data/data/com.micewine.emu/files/usr/tmp", 1);
+    const char *appDir = (*env)->GetStringUTFChars(env, dir, JNI_FALSE);
+
+    const char* tmpDir = concat_char(appDir, "/files/usr/tmp");
+    setenv("TMPDIR", tmpDir, 1);
+    free((char*)tmpDir);
 
     if (!getenv("TMPDIR")) {
         char* error = (char*) "$TMPDIR is not set. Normally it is pointing to /tmp of a container.";
@@ -129,9 +145,13 @@ Java_com_micewine_emu_CmdEntryPoint_start(JNIEnv *env, __unused jclass cls, jobj
     }
 
     if (!getenv("XKB_CONFIG_ROOT")) {
-        if (access("/data/data/com.micewine.emu/files/usr/share/X11/xkb", F_OK) == 0)
-            setenv("XKB_CONFIG_ROOT", "/data/data/com.micewine.emu/files/usr/share/X11/xkb", 1);
+        const char* xkbDir = concat_char(appDir, "/usr/share/X11/xkb");
+        if (access(xkbDir, F_OK) == 0)
+            setenv("XKB_CONFIG_ROOT", xkbDir, 1);
+        free((char*)xkbDir);
     }
+
+    (*env)->ReleaseStringUTFChars(env, dir, appDir);
 
     if (!getenv("XKB_CONFIG_ROOT")) {
         char* error = (char*) "$XKB_CONFIG_ROOT is not set. Normally it is pointing to /usr/share/X11/xkb of a container.";
